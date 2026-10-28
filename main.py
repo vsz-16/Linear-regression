@@ -1,13 +1,49 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
-def Entrada():
-    n = int(input("Quantos pontos você tem?\n"))
-    #Recebe já no formato np. Split() separa os valores da string
-    x = np.array(input(f"Digite os {n} valores de X:\n").split(), dtype = float)
-    y = np.array(input(f"\nDigite os {n} valores de Y:\n").split(), dtype = float)
+def Planilha(caminho):
+
+    if caminho.endswith('.csv'):
+        df = pd.read_csv(caminho, header=None)
+    else:
+        df = pd.read_excel(caminho, header=None)
+    
+    # Pega as duas primeiras colunas do arquivo
+    colx = df.iloc[:, 0]
+    coly = df.iloc[:, 1]
+    
+    # Força a conversão para número
+    # Textos, títulos e legendas viram NaN
+    xnum = pd.to_numeric(colx, errors='coerce')
+    ynum = pd.to_numeric(coly, errors='coerce')
+    
+    # Junta as duas colunas e remove todas as linhas que contêm NaN com o dropna()
+    tabela_limpa = pd.DataFrame({'X': xnum, 'Y': ynum}).dropna()
+    
+    # Extrai os vetores prontos em formato float do NumPy
+    x = tabela_limpa['X'].to_numpy(dtype=float)
+    y = tabela_limpa['Y'].to_numpy(dtype=float)
     
     return x, y
+
+def Entrada():
+    print("Como quer inserir os dados?")
+    print("1 - Digitar")
+    print("2 - Carregar ficheiro (CSV ou Excel)")
+    op = input("Digite o número escolhido:\n")
+    
+    if op == '1':
+        n = int(input("Quantos pontos você tem?\n"))
+        x = np.array(input(f"Digite os {n} valores de X:\n").split(), dtype=float)
+        y = np.array(input(f"Digite os {n} valores de Y:\n").split(), dtype=float)
+        return x, y
+    elif op == '2':
+        caminho = input("Cole o caminho do ficheiro (ex: dados.csv):\n ")
+        return Planilha(caminho)
+    else:
+        print("Opção inválida.")
+        return Entrada()
 
 #Organizar a matriz e o sistema linear
 def Ajuste(x, y):
